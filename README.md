@@ -1,4 +1,4 @@
-# RFM — Roblox Farm Manager
+﻿# RFM — Roblox Farm Manager
 
 Central desktop (Windows 10/11) para **organizar e acompanhar** registros de contas Roblox,
 jogos, tarefas, progresso, sessões locais e produtividade.
@@ -37,7 +37,7 @@ $env:RFM_DATA_DIR = "$PWD\data_demo"
 | **Dashboard** | 8 indicadores e 5 gráficos (contas por jogo, status, atividade diária, produtividade semanal, progresso por jogo), com atualização automática |
 | **Contas** | Cadastro, pesquisa, filtros por jogo/status/categoria, agrupamento, histórico, importação e exportação CSV |
 | **Jogos** | Catálogo, objetivos por jogo, status da integração, abrir a experiência pelo link oficial |
-| **Sessões** | Detecta clientes Roblox abertos, mede duração/CPU/memória, sinaliza ociosidade, associação manual a conta e jogo, sessões manuais |
+| **Sessões** | Detecta clientes Roblox abertos, mede duração/CPU/memória, avisa quando uma sessão cai ou fica ociosa, associação manual a conta e jogo, sessões manuais |
 | **Tarefas** | Tarefas por conta/jogo com prioridade, status, fila ordenada e histórico |
 | **Progresso** | Registros datados de nível, itens, conquistas, objetivos e estatísticas |
 | **Relatórios** | Tempo de operação e produtividade por conta ou jogo, auditoria, exportação CSV |
@@ -148,7 +148,7 @@ No PostgreSQL o backup integrado fica desativado — use `pg_dump`.
 ## Testes e executável
 
 ```powershell
-.venv\Scripts\python.exe -m pytest                              # 36 testes
+.venv\Scripts\python.exe -m pytest                              # 37 testes
 powershell -ExecutionPolicy Bypass -File scripts\build_exe.ps1  # gera dist\RFM\RFM.exe
 ```
 

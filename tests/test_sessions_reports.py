@@ -56,6 +56,34 @@ def test_idle_detection_and_manual_flags(ctx, provider):
     assert ctx.sessions.open_sessions()[0].status == SessionStatus.PROBLEM  # marcação manual é mantida
 
 
+def test_alerts_when_session_drops_or_idles(ctx, provider):
+    alerts: list[str] = []
+    ctx.events.subscribe("sessions.alert", lambda _event, message: alerts.append(message))
+    account = ctx.accounts.create(username="alerta_user")
+
+    provider.processes = [proc(7, cpu=0.0), proc(8)]
+    ctx.sessions.scan()
+    first, second = sorted(ctx.sessions.open_sessions(), key=lambda s: s.pid)
+    ctx.sessions.assign(first.id, account.id, None)
+    assert alerts == []  # sessão nova não gera aviso
+
+    with ctx.db.session() as s:
+        s.get(PlaySession, first.id).idle_since = utcnow() - timedelta(minutes=11)
+    ctx.sessions.scan()
+    assert len(alerts) == 1 and "alerta_user" in alerts[0] and "ociosa" in alerts[0]
+    ctx.sessions.scan()
+    assert len(alerts) == 1  # não repete enquanto continuar ociosa
+
+    provider.processes = [proc(7, cpu=0.0)]
+    ctx.sessions.scan()
+    assert len(alerts) == 2 and f"PID {second.pid}" in alerts[1] and "encerrada" in alerts[1]
+
+    ctx.config.set_many({"sessions.notify": False})
+    provider.processes = []
+    ctx.sessions.scan()
+    assert len(alerts) == 2  # avisos desligados nas configurações
+
+
 def test_assign_manual_session_and_reports(ctx, provider):
     game = next(g for g in ctx.games.all() if g.slug == "fish")
     account = ctx.accounts.create(username="sessao_user", game_ids=[game.id])

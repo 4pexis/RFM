@@ -55,6 +55,11 @@ class SessionManager(BaseManager):
         idle_after = timedelta(minutes=float(self.config.get("sessions.idle_minutes")))
         now = utcnow()
         changed = False
+        alerts: list[str] = []
+
+        def describe(session: PlaySession) -> str:
+            who = session.account.username if session.account else f"PID {session.pid}"
+            return f"Sessão #{session.id} ({who})"
 
         with self.db.session() as s:
             repo = SessionRepository(s)
@@ -70,6 +75,7 @@ class SessionManager(BaseManager):
                     if session.account_id:
                         self._audit(s, "session.end", "account", session.account_id,
                                     f"Sessão #{session.id} encerrada ({session.duration_s // 60} min)")
+                    alerts.append(f"{describe(session)} foi encerrada após {session.duration_s // 60} min.")
                     changed = True
                     continue
                 known.add(key)
@@ -89,6 +95,8 @@ class SessionManager(BaseManager):
                     if status != session.status:
                         session.status = status
                         changed = True
+                        if idle:
+                            alerts.append(f"{describe(session)} está ociosa — possível desconexão.")
 
             for key, proc in by_key.items():
                 if key in known:
@@ -105,6 +113,9 @@ class SessionManager(BaseManager):
 
         if changed:
             self.events.publish(ev.SESSIONS_CHANGED)
+        if self.config.get("sessions.notify"):
+            for message in alerts:
+                self.events.publish(ev.SESSION_ALERT, message)
         return changed
 
     @staticmethod

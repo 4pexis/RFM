@@ -15,6 +15,7 @@ GAMES_CHANGED = "games.changed"
 TASKS_CHANGED = "tasks.changed"
 PROGRESS_CHANGED = "progress.changed"
 SESSIONS_CHANGED = "sessions.changed"
+SESSION_ALERT = "sessions.alert"  # payload: texto do aviso (sessão encerrada ou ociosa)
 SETTINGS_CHANGED = "settings.changed"
 HARDWARE_SNAPSHOT = "hardware.snapshot"
 HARDWARE_ALERT = "hardware.alert"

@@ -39,6 +39,7 @@ class SettingsPage(Page):
             "sessions.process_names": QLineEdit(),
             "sessions.idle_cpu_percent": _spin(0, 100, " %", decimals=1),
             "sessions.idle_minutes": _spin(1, 240, " min"),
+            "sessions.notify": QCheckBox("Avisar quando uma sessão for encerrada ou ficar ociosa"),
             "backup.enabled": QCheckBox("Fazer backup automático"),
             "backup.interval_h": _spin(1, 720, " h"),
             "backup.keep": _spin(1, 200, " arquivos"),
@@ -63,6 +64,7 @@ class SettingsPage(Page):
         form.addRow("Executáveis acompanhados", f["sessions.process_names"])
         form.addRow("Considerar ociosa abaixo de", f["sessions.idle_cpu_percent"])
         form.addRow("…por pelo menos", f["sessions.idle_minutes"])
+        form.addRow("", f["sessions.notify"])
         form.addRow(label("Vários executáveis: separe por vírgula.", "muted"))
 
         backup = QGroupBox("Backup do banco de dados")

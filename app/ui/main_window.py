@@ -4,7 +4,8 @@ from __future__ import annotations
 from PySide6.QtCore import QObject, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QCloseEvent, QIcon, QPixmap
 from PySide6.QtWidgets import (
-    QButtonGroup, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QVBoxLayout, QWidget,
+    QButtonGroup, QHBoxLayout, QLabel, QMainWindow, QPushButton, QStackedWidget, QSystemTrayIcon,
+    QVBoxLayout, QWidget,
 )
 
 from app.core import events as ev
@@ -115,6 +116,11 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.stack, 1)
         self.setCentralWidget(central)
         self.statusBar().showMessage("Pronto")
+        # Ícone na bandeja: usado para as notificações de sessão do Windows.
+        self.tray = QSystemTrayIcon(app_icon(), self)
+        self.tray.setToolTip(APP_NAME)
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            self.tray.show()
 
         self.nav.idClicked.connect(self.show_page)
         self.bridge = EventBridge(ctx)
@@ -145,6 +151,11 @@ class MainWindow(QMainWindow):
         if event == ev.HARDWARE_SNAPSHOT:
             self.monitoring.on_snapshot(payload)
             return
+        if event == ev.SESSION_ALERT:
+            self.statusBar().showMessage(str(payload), 30_000)
+            if self.tray.isVisible():
+                self.tray.showMessage(APP_NAME, str(payload), QSystemTrayIcon.MessageIcon.Warning, 10_000)
+            return
         if event == ev.HARDWARE_ALERT:
             self.monitoring.on_alert(payload)
             self.statusBar().showMessage(f"Alerta: {payload.message}", 15_000)
@@ -163,5 +174,6 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self.timer.stop()
+        self.tray.hide()
         self.ctx.shutdown()
         event.accept()

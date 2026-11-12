@@ -25,6 +25,7 @@ DEFAULTS: dict[str, Any] = {
     "sessions.process_names": "RobloxPlayerBeta.exe",
     "sessions.idle_cpu_percent": 0.5,
     "sessions.idle_minutes": 10,
+    "sessions.notify": True,
     "backup.enabled": True,
     "backup.interval_h": 24,
     "backup.keep": 10,
